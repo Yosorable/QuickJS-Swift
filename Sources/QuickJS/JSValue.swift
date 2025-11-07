@@ -75,6 +75,16 @@ public class JSValue {
     }
 }
 
+extension JSValue: Equatable {
+    public static func == (lhs: JSValue, rhs: JSValue) -> Bool {
+        guard lhs.context?.context == rhs.context?.context else {
+            return false
+        }
+        guard let ctx = lhs.context?.context else { return false }
+        return JS_StrictEq(ctx, lhs.cValue, rhs.cValue) == 1
+    }
+}
+
 extension JSValue {
     public static var undefined: JSValue {
         return JSValue(nil, value: .undefined)
