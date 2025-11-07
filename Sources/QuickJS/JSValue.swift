@@ -132,6 +132,10 @@ extension JSValue {
         return JS_IsBigInt(context, cValue) != 0
     }
     
+    public var isBool: Bool {
+        return JS_IsBool(cValue) != 0
+    }
+    
     public func getValue<T:ConvertibleWithJavascript>() -> T? {
         return context != nil ? T(context!, value: cValue) : nil
     }
