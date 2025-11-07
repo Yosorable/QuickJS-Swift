@@ -52,8 +52,8 @@ public class JSValue {
         self.autoFree = autoFree
     }
     
-    convenience init(_ context: JSContext?, value: JSCValue, dup: Bool = false, autoFree: Bool = true) {
-        self.init(context?.core, value: value, dup: dup, autoFree: autoFree)
+    public convenience init(_ context: JSContext, value: JSCValue, dup: Bool = false, autoFree: Bool = true) {
+        self.init(context.core, value: value, dup: dup, autoFree: autoFree)
     }
     
     func setOpaque<T: AnyObject>(_ obj: T) {
@@ -76,10 +76,10 @@ public class JSValue {
 }
 
 extension JSValue {
-    static var undefined: JSValue {
+    public static var undefined: JSValue {
         return JSValue(nil, value: .undefined)
     }
-    static var null: JSValue {
+    public static var null: JSValue {
         return JSValue(nil, value: .null)
     }
 }
