@@ -73,7 +73,7 @@ final class JSRunloop : JSModule {
             return
         }
         
-        let interval = JSValue(context, value: arguments[1], dup: true).double ?? 0
+        let interval = JSValue(context, value: arguments[1], dup: true).toDouble() ?? 0
 
         if #available(macOS 10.12, *) {
             let timer = Timer(timeInterval: interval/1000, repeats: false) { timer in

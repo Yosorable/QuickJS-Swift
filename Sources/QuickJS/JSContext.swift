@@ -39,9 +39,15 @@ public class JSContext {
     }
 
     @discardableResult
-    public func eval(_ jsCode: String, type: EvalType = .global) -> JSValue {
-        let value = JS_Eval(core.context, jsCode, jsCode.lengthOfBytes(using: .utf8), "<Swift>", type.rawValue)
-        return JSValue(core, value: value)
+    public func evaluateScript(_ jsCode: String, withSourceURL: URL! = nil, type: EvalType = .global) -> JSValue {
+//        let value = JS_Eval(core.context, jsCode, jsCode.lengthOfBytes(using: .utf8), withSourceURL?.standardized.absoluteString ?? "<Swift>", type.rawValue)
+//        return JSValue(core, value: value)
+        let filename = withSourceURL?.standardized.absoluteString ?? "<Swift>"
+        return jsCode.withCString { cCode in
+            filename.withCString { cFileName in
+                JSValue(core, value: JS_Eval(core.context, cCode, strlen(cCode), cFileName, type.rawValue))
+            }
+        }
     }
     
     @discardableResult

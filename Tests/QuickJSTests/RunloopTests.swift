@@ -38,7 +38,7 @@ class RunloopTests: XCTestCase {
         runloop.setTimeout(function(){ timeIsUp(); console.log("Hello Runloop"); }, 3000);
         """
         
-        let result = context?.eval(jsCode, type: .module).error
+        let result = context?.evaluateScript(jsCode, type: .module).toError()
         XCTAssertNil(result)
   
         self.wait(for: [expectation], timeout: 5)

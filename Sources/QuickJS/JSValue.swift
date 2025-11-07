@@ -81,37 +81,143 @@ extension JSValue {
 }
 
 extension JSValue {
-    var isFunction: Bool {
+    public var isFunction: Bool {
         guard let context = context?.context else { return false }
         return JS_IsFunction(context, cValue) != 0
     }
     
-    var isException: Bool {
+    public var isException: Bool {
         return JS_IsException(cValue) != 0
     }
     
-    func getValue<T:ConvertibleWithJavascript>() -> T? {
+    public var isObject: Bool {
+        return JS_IsObject(cValue) != 0
+    }
+    
+    public var isNull: Bool {
+        return JS_IsNull(cValue) != 0
+    }
+    
+    public var isString: Bool {
+        return JS_IsString(cValue) != 0
+    }
+    
+    public var isUndefined: Bool {
+        return JS_IsUndefined(cValue) != 0
+    }
+    
+    public var isArray: Bool {
+        guard let context = context?.context else { return false }
+        return JS_IsArray(context, cValue) != 0
+    }
+    
+    public var isBoolean: Bool {
+        return JS_IsBool(cValue) != 0
+    }
+    
+    public var isNumber: Bool {
+        return JS_IsNumber(cValue) != 0
+    }
+    
+    public var isSymbol: Bool {
+        return JS_IsSymbol(cValue) != 0
+    }
+    
+    public var isBigInt: Bool {
+        guard let context = context?.context else { return false }
+        return JS_IsBigInt(context, cValue) != 0
+    }
+    
+    public func getValue<T:ConvertibleWithJavascript>() -> T? {
         return context != nil ? T(context!, value: cValue) : nil
     }
     
-    var double: Double? {
+    public func toDouble() -> Double? {
         guard self.context != nil else { return nil }
         return self.getValue()
     }
     
-    var int: Int? {
+    public func toInt() -> Int? {
         guard self.context != nil else { return nil }
         return self.getValue()
     }
     
-    var string: String? {
+    public func toString() -> String? {
         guard self.context != nil else { return nil }
         return self.getValue()
     }
     
-    var error: JSError? {
+    public func toError() -> JSError? {
         guard self.context != nil else { return nil }
         return self.getValue()
+    }
+}
+
+// MARK: function
+extension JSValue {
+    private func call(withArguments: [JSValue]) -> JSValue! {
+        guard let wrapper = context, JS_IsFunction(wrapper.context, cValue) == 1 else {
+            return .undefined
+        }
+        let arguments = withArguments
+        let argc = Int32(arguments.count)
+        var argv = arguments.map{ $0.cValue }
+        return argv.withUnsafeMutableBufferPointer { buffer -> JSValue in
+            let res = JS_Call(wrapper.context, cValue, JSCValue.undefined, argc, buffer.baseAddress)
+            return JSValue(wrapper, value: res)
+        }
+    }
+
+    public func call(withArguments: [Any]) -> JSValue! {
+        guard let wrapper = context, JS_IsFunction(wrapper.context, cValue) == 1 else {
+            return .undefined
+        }
+        let arguments = withArguments.map {
+            if let arg = $0 as? JSValue {
+                arg
+            } else if let arg = $0 as? ConvertibleWithJavascript {
+                arg.jsValue(wrapper)
+            } else {
+                JSValue.undefined
+            }
+        }
+        return call(withArguments: arguments)
+    }
+}
+
+// MARK: Object
+extension JSValue {
+    func hasProperty(_ property: String) -> Bool {
+        guard let context = context?.context else { return false }
+        let atom = JS_NewAtom(context, property)
+        defer { JS_FreeAtom(context, atom) }
+            
+        let result = JS_HasProperty(context, self.cValue, atom)
+        return result == 1
+    }
+
+    func forProperty(_ property: String) -> JSValue! {
+        guard let wrapper = context else { return .undefined }
+        let atom = JS_NewAtom(wrapper.context, property)
+        defer { JS_FreeAtom(wrapper.context, atom) }
+        
+        let value = JS_GetProperty(wrapper.context, self.cValue, atom)
+        
+        return JSValue(wrapper, value: value)
+    }
+    
+    func atIndex(_ index: Int) -> JSValue! {
+        guard let wrapper = context else { return .undefined }
+        guard JS_IsArray(wrapper.context, self.cValue) == 1, let length = self.forProperty("length").toInt() else {
+            return .undefined
+        }
+        guard index >= 0 && index < length else {
+            return .undefined
+        }
+
+        let value = JS_GetPropertyUint32(wrapper.context, self.cValue, UInt32(index))
+
+        return JSValue(wrapper, value: value)
     }
 }
 

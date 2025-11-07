@@ -45,7 +45,8 @@ public class JSRuntime {
         self.jsInstance = runtime
         js_std_set_worker_new_context_func(JSRuntime.contextBuilder);
         js_std_init_handlers(runtime);
-        JS_SetModuleLoaderFunc(runtime, nil, js_module_loader, nil);
+        // MARK: todo: js_module_loader handle expection
+        JS_SetModuleLoaderFunc2(runtime, nil, js_module_loader, js_module_check_attributes, nil);
     }
     
     deinit {
