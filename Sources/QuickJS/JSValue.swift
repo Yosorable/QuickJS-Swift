@@ -177,6 +177,7 @@ extension JSValue {
         }
     }
 
+    @discardableResult
     public func call(withArguments: [Any]!) -> JSValue! {
         guard let wrapper = context, JS_IsFunction(wrapper.context, cValue) == 1 else {
             return .undefined
