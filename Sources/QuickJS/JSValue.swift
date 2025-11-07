@@ -52,6 +52,10 @@ public class JSValue {
         self.autoFree = autoFree
     }
     
+    convenience init(_ context: JSContext?, value: JSCValue, dup: Bool = false, autoFree: Bool = true) {
+        self.init(context?.core, value: value, dup: dup, autoFree: autoFree)
+    }
+    
     func setOpaque<T: AnyObject>(_ obj: T) {
         let ptr = Unmanaged<T>.passUnretained(obj).toOpaque()
         JS_SetOpaque(cValue, ptr)
