@@ -151,6 +151,11 @@ extension JSValue {
         return self.getValue()
     }
     
+    public func toBool() -> Bool? {
+        guard self.context != nil else { return nil }
+        return self.getValue()
+    }
+    
     public func toError() -> JSError? {
         guard self.context != nil else { return nil }
         return self.getValue()
