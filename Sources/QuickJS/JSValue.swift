@@ -356,6 +356,21 @@ extension Double: ConvertibleWithJavascript {
     }
 }
 
+extension Bool: ConvertibleWithJavascript {
+    public init?(_ context: JSContextWrapper, value: JSCValue) {
+        if JS_IsBool(value) == 0 {
+            return nil
+        }
+
+        self = (JS_ToBool(context.context, value) == 1 )
+    }
+    
+    public func jsValue(_ context: JSContextWrapper) -> JSValue {
+        let value = JS_NewBool(context.context, self ? 1 : 0)
+        return JSValue(context, value: value)
+    }
+}
+
 extension Array: ConvertibleWithJavascript where Element: ConvertibleWithJavascript {
     public init?(_ context: JSContextWrapper, value: JSCValue) {
         guard JS_IsObject(value) != 0 else {
