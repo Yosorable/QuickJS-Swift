@@ -201,7 +201,7 @@ extension JSValue {
 
 // MARK: Object
 extension JSValue {
-    func hasProperty(_ property: String) -> Bool {
+    public func hasProperty(_ property: String) -> Bool {
         guard let context = context?.context else { return false }
         let atom = JS_NewAtom(context, property)
         defer { JS_FreeAtom(context, atom) }
@@ -210,7 +210,7 @@ extension JSValue {
         return result == 1
     }
 
-    func forProperty(_ property: String) -> JSValue! {
+    public func forProperty(_ property: String) -> JSValue! {
         guard let wrapper = context else { return .undefined }
         let atom = JS_NewAtom(wrapper.context, property)
         defer { JS_FreeAtom(wrapper.context, atom) }
@@ -220,7 +220,7 @@ extension JSValue {
         return JSValue(wrapper, value: value)
     }
     
-    func atIndex(_ index: Int) -> JSValue! {
+    public func atIndex(_ index: Int) -> JSValue! {
         guard let wrapper = context else { return .undefined }
         guard JS_IsArray(wrapper.context, self.cValue) == 1, let length = self.forProperty("length").toInt() else {
             return .undefined
