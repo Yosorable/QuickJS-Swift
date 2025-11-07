@@ -177,11 +177,11 @@ extension JSValue {
         }
     }
 
-    public func call(withArguments: [Any]) -> JSValue! {
+    public func call(withArguments: [Any]!) -> JSValue! {
         guard let wrapper = context, JS_IsFunction(wrapper.context, cValue) == 1 else {
             return .undefined
         }
-        let arguments = withArguments.map {
+        let arguments = (withArguments ?? []).map {
             if let arg = $0 as? JSValue {
                 arg
             } else if let arg = $0 as? ConvertibleWithJavascript {

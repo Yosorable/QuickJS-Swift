@@ -89,9 +89,10 @@ final class QuickJSSwiftTests: XCTestCase {
         XCTAssertEqual(func2.call(withArguments: [1.jsValue(context!.core)]).toInt(), 1)
         XCTAssertEqual(func2.call(withArguments: ["1"]).toString(), "1")
         XCTAssertEqual(func2.call(withArguments: ["👋你好"]).toString(), "👋你好")
+        XCTAssertEqual(func2.call(withArguments: nil).isUndefined, true)
         
         let func3 = context!.evaluateScript("func3;")
-        XCTAssertEqual(func3.call(withArguments: []).isException, true)
+        XCTAssertEqual(func3.call(withArguments: nil).isException, true)
         
     }
 
